@@ -1,12 +1,17 @@
-from ultralytics import YOLO
+import os
+import time
+import cv2
+from models.yolov12 import YOLOv12
 
-video_path = 'input.mp4'      # Ganti dengan path videomu
-model_path = 'weights/yolo12n.pt'
+def run_detection(source):
+    model = YOLOv12("weights/yolo12n.pt")
 
-print("[INFO] Memuat model...")
-model = YOLO(model_path)
+    img = cv2.imread(source)
+    result = model.track(img)
 
-print("[INFO] Mulai deteksi video...")
-results = model.predict(source=video_path, save=True)
+    filename = os.path.basename(source).rsplit('.', 1)[0]
+    detected_filename = f"{filename}_{int(time.time())}_detected.jpg"
+    output_path = os.path.join("static/uploads", detected_filename)
 
-print("[SELESAI] Video dengan bounding box disimpan di folder 'runs/detect'")
+    cv2.imwrite(output_path, result)
+    return detected_filename
